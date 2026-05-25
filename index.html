@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUAA 课程签到</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blue:    #2563eb;
+            --blue2:   #1d4ed8;
+            --green:   #16a34a;
+            --red:     #dc2626;
+            --gray:    #6b7280;
+            --radius:  12px;
+            --shadow:  0 8px 32px rgba(37,99,235,0.10);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 60%, #e0f2fe 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.7);
+            padding: 36px 32px 28px;
+        }
+
+        /* ── Header ── */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .logo {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, var(--blue), var(--blue2));
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+        }
+        .logo svg { width: 28px; height: 28px; }
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e3a5f;
+            letter-spacing: -0.3px;
+        }
+        .subtitle {
+            font-size: 13px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        /* ── Disclaimer ── */
+        .disclaimer {
+            background: #f0f7ff;
+            border: 1px solid #bfdbfe;
+            border-radius: var(--radius);
+            padding: 11px 14px;
+            font-size: 12.5px;
+            color: #3b5998;
+            margin-bottom: 22px;
+            line-height: 1.7;
+        }
+        .disclaimer summary {
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--blue);
+            outline: none;
+            user-select: none;
+        }
+        .disclaimer p { margin-top: 6px; }
+
+        /* ── Form ── */
+        .field { margin-bottom: 13px; }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius);
+            font-size: 15px;
+            font-family: inherit;
+            background: #fff;
+            color: #1e293b;
+            transition: border-color .2s, box-shadow .2s;
+            appearance: none;
+        }
+        input::placeholder { color: #94a3b8; }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+        select { color: #1e293b; cursor: pointer; }
+        select.placeholder-shown { color: #94a3b8; }
+
+        /* ── Buttons ── */
+        .btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s, opacity .15s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--blue), var(--blue2));
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.22);
+            margin-bottom: 10px;
+        }
+        .btn-primary:hover:not(:disabled) { box-shadow: 0 6px 18px rgba(37,99,235,0.32); transform: translateY(-1px); }
+
+        .btn-sign {
+            background: #f1f5f9;
+            color: #64748b;
+            box-shadow: none;
+        }
+        .btn-sign.ready {
+            background: linear-gradient(90deg, var(--green), #15803d);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(22,163,74,0.22);
+        }
+        .btn-sign.ready:hover:not(:disabled) { box-shadow: 0 6px 18px rgba(22,163,74,0.32); transform: translateY(-1px); }
+
+        /* ── Message ── */
+        .msg {
+            margin-top: 14px;
+            padding: 11px 14px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity .3s;
+            pointer-events: none;
+        }
+        .msg.show { opacity: 1; pointer-events: auto; }
+        .msg.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .msg.error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 24px;
+            line-height: 1.8;
+        }
+        footer a { color: var(--blue); text-decoration: none; margin: 0 4px; }
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 480px) {
+            .card { padding: 28px 18px 22px; }
+            h1 { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+
+    <div class="header">
+        <div class="logo">
+            <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3" width="8" height="8" rx="1.5" fill="white"/>
+                <rect x="13" y="3" width="8" height="8" rx="1.5" fill="white" opacity=".7"/>
+                <rect x="3" y="13" width="8" height="8" rx="1.5" fill="white" opacity=".7"/>
+                <rect x="13" y="13" width="8" height="8" rx="1.5" fill="white" opacity=".5"/>
+                <circle cx="22" cy="22" r="5" fill="white"/>
+                <path d="M19.5 22l2 2 3-3" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <h1>BUAA 课程签到</h1>
+        <p class="subtitle">输入学号与密码，查询今日课程并签到</p>
+    </div>
+
+    <details class="disclaimer">
+        <summary>使用说明 / 免责声明</summary>
+        <p>1. 填写学号、iClass 密码，点击「查询课程」。</p>
+        <p>2. 选择要签到的课程，点击「签到」。</p>
+        <p>3. 仅查询当日课程，在课程开始前 10 分钟至课程结束期间允许打卡。</p>
+        <p>4. 本工具仅供个人学习研究使用，请勿违反学校规定。</p>
+        <p>5. 使用本工具造成的一切后果由使用者自行承担。</p>
+    </details>
+
+    <div class="field">
+        <input id="studentId" type="text" placeholder="学号" autocomplete="off" inputmode="numeric">
+    </div>
+    <div class="field">
+        <input id="password" type="password" placeholder="iClass 密码" autocomplete="off">
+    </div>
+    <div class="field">
+        <select id="scheduleList">
+            <option value="" disabled selected>请先查询课程</option>
+        </select>
+    </div>
+
+    <button class="btn btn-primary" id="queryBtn">查询课程</button>
+    <button class="btn btn-sign" id="signBtn" disabled>签到</button>
+
+    <div class="msg" id="msg"></div>
+
+    <footer>
+        <div>本工具仅供个人使用 · 数据直连北航 iClass</div>
+        <div>参考自 <a href="https://github.com/slvf/BUAA-iClassSignIn" target="_blank">slvf/BUAA-iClassSignIn</a></div>
+    </footer>
+</div>
+
+<script>
+    const API = 'https://web-production-60b9d.up.railway.app';
+
+    const idEl      = document.getElementById('studentId');
+    const pwEl      = document.getElementById('password');
+    const selEl     = document.getElementById('scheduleList');
+    const queryBtn  = document.getElementById('queryBtn');
+    const signBtn   = document.getElementById('signBtn');
+    const msgEl     = document.getElementById('msg');
+
+    let userId = '', sessionId = '';
+
+    function showMsg(text, type) {
+        msgEl.textContent = text;
+        msgEl.className = `msg ${type} show`;
+        clearTimeout(msgEl._t);
+        msgEl._t = setTimeout(() => msgEl.classList.remove('show'), 5000);
+    }
+
+    function resetSchedule() {
+        selEl.innerHTML = '<option value="" disabled selected>请先查询课程</option>';
+        signBtn.disabled = true;
+        signBtn.classList.remove('ready');
+        userId = ''; sessionId = '';
+    }
+
+    idEl.addEventListener('input', resetSchedule);
+    pwEl.addEventListener('input', resetSchedule);
+
+    selEl.addEventListener('change', () => {
+        const ok = !!selEl.value;
+        signBtn.disabled = !ok;
+        signBtn.classList.toggle('ready', ok);
+    });
+
+    queryBtn.addEventListener('click', async () => {
+        const id = idEl.value.trim();
+        const pw = pwEl.value.trim();
+        if (!id || !pw) return showMsg('请填写学号和密码', 'error');
+
+        queryBtn.disabled = true;
+        queryBtn.textContent = '查询中…';
+        try {
+            const res  = await fetch(`${API}/api/schedule?studentId=${encodeURIComponent(id)}&password=${encodeURIComponent(pw)}`);
+            const data = await res.json();
+            if (data.STATUS !== '0') return showMsg(data.message || '查询失败', 'error');
+
+            const list = data.result || [];
+            if (list.length === 0) return showMsg('今天没有课程，无需签到', 'success');
+
+            userId    = data.user_id    || '';
+            sessionId = data.session_id || '';
+
+            selEl.innerHTML = '<option value="" disabled selected>请选择课程</option>';
+            list.forEach(item => {
+                const begin  = item.classBeginTime.slice(11, 16);
+                const end    = item.classEndTime.slice(11, 16);
+                const status = item.signStatus === '1' ? '已签到' : '未签到';
+                const opt    = document.createElement('option');
+                opt.value       = JSON.stringify(item);
+                opt.textContent = `${begin}–${end}  ${item.courseName}  ${item.classroomName}  [${status}]`;
+                selEl.appendChild(opt);
+            });
+            showMsg('课程查询成功', 'success');
+        } catch (e) {
+            showMsg('网络请求失败，请稍后重试', 'error');
+        } finally {
+            queryBtn.disabled = false;
+            queryBtn.textContent = '查询课程';
+        }
+    });
+
+    signBtn.addEventListener('click', async () => {
+        const val = selEl.value;
+        if (!val) return;
+        const item = JSON.parse(val);
+
+        signBtn.disabled = true;
+        signBtn.textContent = '签到中…';
+        try {
+            const res  = await fetch(`${API}/api/sign`, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ user_id: userId, courseSchedId: item.id })
+            });
+            const data = await res.json();
+            if (data.STATUS === '0') {
+                const opt = selEl.options[selEl.selectedIndex];
+                opt.textContent = opt.textContent.replace('[未签到]', '[已签到]');
+                showMsg('签到成功 ✓', 'success');
+            } else {
+                showMsg(data.message || '签到失败', 'error');
+            }
+        } catch (e) {
+            showMsg('网络错误，请稍后重试', 'error');
+        } finally {
+            signBtn.disabled = false;
+            signBtn.textContent = '签到';
+        }
+    });
+</script>
+</body>
+</html>
