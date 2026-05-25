@@ -272,7 +272,9 @@
         queryBtn.disabled = true;
         queryBtn.textContent = '查询中…';
         try {
-            const res  = await fetch(`${API}/api/schedule?studentId=${encodeURIComponent(id)}&password=${encodeURIComponent(pw)}`);
+            const res = await fetch(`${API}/api/schedule?studentId=${encodeURIComponent(id)}&password=${encodeURIComponent(pw)}`, {
+    headers: { 'ngrok-skip-browser-warning': '1' }
+});
             const data = await res.json();
             if (data.STATUS !== '0') return showMsg(data.message || '查询失败', 'error');
 
@@ -309,11 +311,14 @@
         signBtn.disabled = true;
         signBtn.textContent = '签到中…';
         try {
-            const res  = await fetch(`${API}/api/sign`, {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ user_id: userId, courseSchedId: item.id })
-            });
+            const res = await fetch(`${API}/api/sign`, {
+    method: 'POST',
+    headers: { 
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': '1'
+    },
+    body: JSON.stringify({ user_id: userId, courseSchedId: item.id })
+});
             const data = await res.json();
             if (data.STATUS === '0') {
                 const opt = selEl.options[selEl.selectedIndex];
